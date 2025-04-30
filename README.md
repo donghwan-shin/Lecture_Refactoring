@@ -11,9 +11,13 @@ pip install -r requirements.txt
 ## Task1: Check the existing tests and add more if necessary
 
 Before refactoring, you need to check the existing tests in `tests/test_main.py` and ensure that they are working as expected.
-By looking at the tests in `tests/test_main.py`, you can see how the code in `main.py` is expected to behave.
+```bash
+python -m unittest tests/test_main.py
+```
 
-Also, if you run the following code, you can see that the test coverage of `main.py`:
+Also, by looking at the tests in `tests/test_main.py`, you can see how the code in `main.py` is expected to behave.
+
+If you run the following code, you can check the test coverage of `main.py`:
 ```bash
 coverage run -m unittest tests/test_main.py && coverage html && open htmlcov/main_py.html
 ```
