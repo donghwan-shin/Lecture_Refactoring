@@ -75,5 +75,76 @@ class TestCustomerManager(unittest.TestCase):
         fee_fragile = calculate_shipping_fee(purchases, 'fragile')
         self.assertEqual(fee_fragile, 25)
 
+    def test_add_purchases(self):
+        cm = CustomerManager()
+        name = "Alice"
+        purchases = [{'price': 30}, {'price': 70}]
+        cm.add_purchases(name, purchases)
+        self.assertEqual(cm.customers[name], purchases)
+
+    def test_get_total_spent(self):
+        cm = CustomerManager()
+        name = "Alice"
+        purchases = [{'price': 90}, {'price': 150}]
+        cm.add_customer(name, purchases)
+        expected = 90 + 150 * 1.2  # One taxed, one not
+        self.assertAlmostEqual(cm.get_total_spent(name), expected)
+
+    def test_generate_report_no_discount(self):
+        cm = CustomerManager()
+        cm.add_customer("Bob", [{'price': 50}])
+
+        captured = io.StringIO()
+        with contextlib.redirect_stdout(captured):
+            cm.generate_report()
+        output = captured.getvalue()
+
+        self.assertIn("Bob", output)
+        self.assertIn("No discount", output)
+
+    def test_generate_report_potential(self):
+        cm = CustomerManager()
+        cm.add_customer("Bob", [{'price': 50}, {'price': 150}, {'price': 150}])
+
+        captured = io.StringIO()
+        with contextlib.redirect_stdout(captured):
+            cm.generate_report()
+        output = captured.getvalue()
+
+        self.assertIn("Bob", output)
+        self.assertIn("Potential future discount customer", output)
+
+    def test_generate_report_priority(self):
+        cm = CustomerManager()
+        cm.add_customer("Bob", [{'price': 700}])
+
+        captured = io.StringIO()
+        with contextlib.redirect_stdout(captured):
+            cm.generate_report()
+        output = captured.getvalue()
+
+        self.assertIn("Bob", output)
+        self.assertIn("Eligible for discount", output)
+        self.assertIn("Priority", output)
+
+    def test_generate_report_vip(self):
+        cm = CustomerManager()
+        cm.add_customer("Bob", [{'price': 500}, {'price': 500}, {'price': 150}])
+
+        captured = io.StringIO()
+        with contextlib.redirect_stdout(captured):
+            cm.generate_report()
+        output = captured.getvalue()
+
+        self.assertIn("Bob", output)
+        self.assertIn("Eligible for discount", output)
+        self.assertIn("VIP", output)
+
+    def test_default_condition_heavy_shipping(self):
+        purchases = [{'price': 40, 'weight': 25}]
+        fee = calculate_shipping_fee(purchases)
+        self.assertEqual(fee, 50)
+
+
 if __name__ == "__main__":
     unittest.main()
