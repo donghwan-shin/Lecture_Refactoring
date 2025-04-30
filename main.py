@@ -40,32 +40,16 @@ class CustomerManager:
                 if total_spent > 800:
                     print("Priority Customer")
 
-def calculate_shipping_fee(purchases):
-    heavy_item = False
-    for purchase in purchases:
-        if purchase.get('weight', 0) > 20:
-            heavy_item = True
-            break
-    if heavy_item:
-        return 50
-    else:
+def calculate_shipping_fee(purchases, condition='heavy'):
+    if condition == 'heavy':
+        for purchase in purchases:
+            if purchase.get('weight', 0) > 20:
+                return 50
         return 20
-
-def calculate_shipping_fee_for_heavy_items(purchases):
-    for purchase in purchases:
-        if purchase.get('weight', 0) > 20:
-            return 50
-    return 20
-
-def calculate_shipping_fee_for_fragile_items(purchases):
-    fragile_item = False
-    for purchase in purchases:
-        if purchase.get('fragile', False):
-            fragile_item = True
-            break
-    if fragile_item:
-        return 60
-    else:
+    elif condition == 'fragile':
+        for purchase in purchases:
+            if purchase.get('fragile', False):
+                return 60
         return 25
 
 flat_tax = 0.2

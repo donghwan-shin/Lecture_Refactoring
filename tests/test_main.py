@@ -2,7 +2,7 @@ import unittest
 import io
 import contextlib
 
-from main import CustomerManager, calculate_shipping_fee_for_fragile_items, calculate_shipping_fee
+from main import CustomerManager, calculate_shipping_fee
 
 class TestCustomerManager(unittest.TestCase):
 
@@ -57,13 +57,13 @@ class TestCustomerManager(unittest.TestCase):
     def test_heavy_item_shipping_fee(self):
         purchases = [{'price': 100, 'weight': 25}]
 
-        fee = calculate_shipping_fee(purchases)
+        fee = calculate_shipping_fee(purchases, 'heavy')
         self.assertEqual(fee, 50)
 
     def test_fragile_item_shipping_fee(self):
         purchases = [{'price': 70, 'fragile': True}]
 
-        fee = calculate_shipping_fee_for_fragile_items(purchases)
+        fee = calculate_shipping_fee(purchases, 'fragile')
         self.assertEqual(fee, 60)
 
     def test_no_special_items_shipping_fee(self):
@@ -72,7 +72,7 @@ class TestCustomerManager(unittest.TestCase):
         fee = calculate_shipping_fee(purchases)
         self.assertEqual(fee, 20)
 
-        fee_fragile = calculate_shipping_fee_for_fragile_items(purchases)
+        fee_fragile = calculate_shipping_fee(purchases, 'fragile')
         self.assertEqual(fee_fragile, 25)
 
 if __name__ == "__main__":
