@@ -1,35 +1,58 @@
 import unittest
+import io
+import contextlib
 
 from main import CustomerManager, calculate_shipping_fee_for_fragile_items
 
 class TestCustomerManager(unittest.TestCase):
 
-    def test_basic_report_generation(self):
+    def test_add_customer(self):
         cm = CustomerManager()
-        purchases = [{'price': 50}, {'price': 80}]
-        cm.add_customer("Alice", purchases)
+        name = "Alice"
+        purchases = [{'price': 50, 'item': 'banana'}, {'price': 80, 'item': 'apple'}]
+        cm.add_customer(name, purchases)
 
-        # We cannot capture print easily without capturing stdout,
-        # so in real tests we would restructure the code to return values.
-        cm.generate_report()
+        self.assertEqual(
+            {name: purchases},
+            cm.customers
+        )
+
+    def test_add_purchase(self):
+        cm = CustomerManager()
+        name = "Alice"
+        purchase = {'price': 50, 'item': 'banana'}
+        cm.add_purchase(name, purchase)
+
+        self.assertEqual(
+            {name: [purchase]},
+            cm.customers
+        )
+
+    def test_add_purchase_multiple(self):
+        cm = CustomerManager()
+        name = "Alice"
+        purchase = {'price': 50, 'item': 'banana'}
+        cm.add_purchase(name, purchase)
+        cm.add_purchase(name, purchase)
+
+        self.assertEqual(
+            {name: [purchase, purchase]},
+            cm.customers
+        )
 
     def test_discount_eligibility(self):
         cm = CustomerManager()
-        purchases = [{'price': 600}]
-        cm.add_customer("Bob", purchases)
+        cm.add_customer("Bob", [{'price': 600}])
 
-        cm.generate_report()
+        # Capture printed output
+        captured = io.StringIO()
+        with contextlib.redirect_stdout(captured):
+            cm.generate_report()
 
-    def test_vip_and_priority_customers(self):
-        cm = CustomerManager()
+        output = captured.getvalue()
 
-        purchases_vip = [{'price': 950}]
-        purchases_priority = [{'price': 850}]
-
-        cm.add_customer("Charlie", purchases_vip)
-        cm.add_customer("Diana", purchases_priority)
-
-        cm.generate_report()
+        self.assertIn("Bob", output)
+        self.assertIn("Eligible for discount", output)
 
     def test_heavy_item_shipping_fee(self):
         cm = CustomerManager()
