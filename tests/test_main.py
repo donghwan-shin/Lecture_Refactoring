@@ -2,7 +2,7 @@ import unittest
 import io
 import contextlib
 
-from main import CustomerManager, calculate_shipping_fee_for_fragile_items
+from main import CustomerManager, calculate_shipping_fee_for_fragile_items, calculate_shipping_fee
 
 class TestCustomerManager(unittest.TestCase):
 
@@ -55,10 +55,9 @@ class TestCustomerManager(unittest.TestCase):
         self.assertIn("Eligible for discount", output)
 
     def test_heavy_item_shipping_fee(self):
-        cm = CustomerManager()
         purchases = [{'price': 100, 'weight': 25}]
 
-        fee = cm.calculate_shipping_fee(purchases)
+        fee = calculate_shipping_fee(purchases)
         self.assertEqual(fee, 50)
 
     def test_fragile_item_shipping_fee(self):
@@ -68,10 +67,9 @@ class TestCustomerManager(unittest.TestCase):
         self.assertEqual(fee, 60)
 
     def test_no_special_items_shipping_fee(self):
-        cm = CustomerManager()
         purchases = [{'price': 40, 'weight': 5, 'fragile': False}]
 
-        fee = cm.calculate_shipping_fee(purchases)
+        fee = calculate_shipping_fee(purchases)
         self.assertEqual(fee, 20)
 
         fee_fragile = calculate_shipping_fee_for_fragile_items(purchases)
