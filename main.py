@@ -21,8 +21,7 @@ class CustomerManager:
         total_spent = 0
         for purchase in self.customers[name]:
             if purchase['price'] > self.tax_threshold:
-                taxed_price = purchase['price'] * (1 + self.tax_rate)
-                total_spent += taxed_price
+                total_spent += purchase['price'] * (1 + self.tax_rate)
             else:
                 total_spent += purchase['price']
 
