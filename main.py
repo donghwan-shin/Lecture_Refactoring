@@ -51,5 +51,3 @@ def calculate_shipping_fee(purchases, condition='heavy'):
             if purchase.get('fragile', False):
                 return 60
         return 25
-
-flat_tax = 0.2
