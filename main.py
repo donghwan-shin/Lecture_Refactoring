@@ -3,7 +3,10 @@ class CustomerManager:
         self.customers = {}
         self.tax_rate = 0.2
         self.tax_threshold = 100
+        self.potential_discount_threshold = 300
         self.discount_threshold = 500
+        self.priority_threshold = 800
+        self.vip_threshold = 1000
 
     def add_customer(self, name, purchases):
         if name in self.customers.keys():
@@ -17,55 +20,44 @@ class CustomerManager:
     def add_purchases(self, name, purchases):
         self.add_customer(name, purchases)
 
-    def generate_report(self):
-        for y, x in self.customers.items():
-            a = 0
-            for z in x:
-                if z['price'] > self.tax_threshold:
-                    taxed_price = z['price'] * (1 + self.tax_rate)
-                    a += taxed_price
-                else:
-                    a += z['price']
-            print(y)
-            if a > self.discount_threshold:
-                print("Eligible for discount")
+    def get_total_spent(self, name):
+        total_spent = 0
+        for purchase in self.customers[name]:
+            if purchase['price'] > self.tax_threshold:
+                total_spent += purchase['price'] * (1 + self.tax_rate)
             else:
-                if a > 300:
+                total_spent += purchase['price']
+
+        return total_spent
+
+    def generate_report(self):
+        for name, purchases in self.customers.items():
+            total_spent = self.get_total_spent(name)
+
+            print(name)
+            if total_spent > self.discount_threshold:
+                print("Eligible for discount")
+
+                if total_spent > self.vip_threshold:
+                    print("VIP Customer!")
+                elif total_spent > self.priority_threshold:
+                        print("Priority Customer")
+
+            else:
+                if total_spent > self.potential_discount_threshold:
                     print("Potential future discount customer")
                 else:
                     print("No discount")
-            if a > 1000:
-                print("VIP Customer!")
-            else:
-                if a > 800:
-                    print("Priority Customer")
 
-    def calculate_shipping_fee(self, purchases):
-        heavy_item = False
+
+def calculate_shipping_fee(purchases, condition='heavy'):
+    if condition == 'heavy':
         for purchase in purchases:
             if purchase.get('weight', 0) > 20:
-                heavy_item = True
-                break
-        if heavy_item:
-            return 50
-        else:
-            return 20
-
-def calculate_shipping_fee_for_heavy_items(purchases):
-    for purchase in purchases:
-        if purchase.get('weight', 0) > 20:
-            return 50
-    return 20
-
-def calculate_shipping_fee_for_fragile_items(purchases):
-    fragile_item = False
-    for purchase in purchases:
-        if purchase.get('fragile', False):
-            fragile_item = True
-            break
-    if fragile_item:
-        return 60
-    else:
+                return 50
+        return 20
+    elif condition == 'fragile':
+        for purchase in purchases:
+            if purchase.get('fragile', False):
+                return 60
         return 25
-
-flat_tax = 0.2
